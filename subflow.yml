@@ -1,0 +1,37 @@
+version: v1
+type: flow
+steps:
+  - type: foreach
+    name: retoreForeach
+    iterationMapping:
+      collection: $.files
+      item: fileName
+    steps:
+      # Invoke restore function
+      - type: task
+        name: restoreTask
+        resourceArn: !Ref OSSRestoreService/restoreFunction
+
+      - type: wait
+        name: Wait5s
+        duration: 5
+
+      # Get file restore status
+      - type: task
+        name: GetJobStatus
+        resourceArn: !Ref OSSRestoreService/restoreStatusFunction
+
+      # Check whether file restore success, if not, retry check
+      - type: choice
+        name: CheckJobComplete
+        inputMappings:
+          - target: status
+            source: $local.status
+        choices:
+          - condition: $.status == "success"
+            goto: JobSucceeded
+          - condition: $.status == "running"
+            goto: Wait5s
+
+      - type: succeed
+        name: JobSucceeded
