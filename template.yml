@@ -82,6 +82,8 @@ Resources:
                     target: prefix
                   - source: $input.maxKeys
                     target: maxKeys
+                  - source: $input.pollInterval
+                    target: pollInterval
                   - source: ''
                     target: marker
 

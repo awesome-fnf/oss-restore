@@ -2,34 +2,14 @@
 使用 Serverless Workflow 和函数计算 FC 来并发的批量解冻 oss 文件。
 
 ## 调用示例
-1. 选择 `解冻 OSS 文件` 模板创建应用
-![](https://img.alicdn.com/tfs/TB1BKDBxVY7gK0jSZKzXXaikpXa-2770-1186.png)
+<video width="100%" height="500"  controls autoplay="autoplay" src="https://dev-fc-application-template-cn-shenzhen.oss-cn-shenzhen.aliyuncs.com/oss-restore/media/oss-restore-zh.mov"></video>
 
-2. 跳转到创建应用页面，部署应用
-![](https://img.alicdn.com/tfs/TB15U6Ex1L2gK0jSZFmXXc7iXXa-2740-1274.png)
-
-3. 等待应用创建成功
-![](https://img.alicdn.com/tfs/TB1RevBx8v0gK0jSZKbXXbK2FXa-2708-1268.png)
-
-4. 执行应用
-
-    输入：
-    ```json
-    {
-      "endpoint": "",
-      "bucketName": "",
-      "prefix": "",
-      "maxKeys": 100
-    }
-    ```
-    参数说明：
-    - endpoint: OSS endpoint
-    - bucketName: OSS bucket 名称
-    - prefix: (可选) OSS bucket 文件过滤前缀
-    - maxKeys: (可选) OSS ListObjects 最大数量 (这里不要超过 Workflow foreach 的并发，默认是 100)
-  
-   ![](https://img.alicdn.com/tfs/TB1sg_Cx9f2gK0jSZFPXXXsopXa-2714-1270.png)
-   
+参数说明：
+- endpoint: OSS endpoint
+- bucketName: OSS bucket 名称
+- prefix: (可选) OSS bucket 文件过滤前缀
+- maxKeys: (可选) OSS ListObjects 最大数量 (这里不要超过 Workflow foreach 的并发，默认是 100)
+- pollInterval: (可选) 轮询 OSS restore 状态的时间间隔(秒)
 ## 工作原理
 1. `mainRestoreFlow` 任务步骤调用函数 `listArchiveFiles` 获取从 OSS `marker` 开始的文件列表。
 2. `mainRestoreFlow` 调用 `restoreFlow` 对获取到的文件列表进行解冻。

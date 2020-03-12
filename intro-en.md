@@ -2,33 +2,14 @@
 Use Serverless Workflow concurrent and batch restore OSS files.
 
 ## How to use
-1. Choose `OSS Restore` template
-![](https://img.alicdn.com/tfs/TB1BKDBxVY7gK0jSZKzXXaikpXa-2770-1186.png)
+<video width="100%" height="500"  controls autoplay="autoplay" src="https://dev-fc-application-template-cn-shenzhen.oss-cn-shenzhen.aliyuncs.com/oss-restore/media/oss-restore-en.mov"></video>
 
-2. Jump to create application
-![](https://img.alicdn.com/tfs/TB15U6Ex1L2gK0jSZFmXXc7iXXa-2740-1274.png)
-
-3. Wait for application created success
-![](https://img.alicdn.com/tfs/TB1RevBx8v0gK0jSZKbXXbK2FXa-2708-1268.png)
-
-4. Run StartExecution for `mainRestoreFlow`
-
-    Input：
-    ```json
-    {
-      "endpoint": "",
-      "bucketName": "",
-      "prefix": "",
-      "maxKeys": 100
-    }
-    ```
-    Parameters：
-    - endpoint: OSS endpoint
-    - bucketName: OSS bucket name
-    - prefix: (optional) OSS bucket prefix
-    - maxKeys: (optional) OSS ListObjects maxKeys (Don't exceed Workflow foreach number limit，default 100)
-  
-   ![](https://img.alicdn.com/tfs/TB1sg_Cx9f2gK0jSZFPXXXsopXa-2714-1270.png)
+Parameters：
+- endpoint: OSS endpoint
+- bucketName: OSS bucket name
+- prefix: (optional) OSS bucket prefix
+- maxKeys: (optional) OSS ListObjects maxKeys (Don't exceed Workflow foreach number limit，default 100)
+- pollInterval: (optional) Poll OSS restore status interval in seconds
    
 ## Framework
 1. `mainRestoreFlow` invoke function `listArchiveFiles`, get OSS archive files start with `marker`.

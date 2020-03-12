@@ -12,26 +12,26 @@ steps:
         name: restoreTask
         resourceArn: !Ref OSSRestoreService/restoreFunction
 
-      - type: wait
-        name: Wait5s
-        duration: 5
+  - type: wait
+    name: Wait
+    duration: $.pollInterval
 
-      # Get file restore status
-      - type: task
-        name: GetJobStatus
-        resourceArn: !Ref OSSRestoreService/restoreStatusFunction
+  # Get file restore status
+  - type: task
+    name: GetJobStatus
+    resourceArn: !Ref OSSRestoreService/restoreStatusFunction
 
-      # Check whether file restore success, if not, retry check
-      - type: choice
-        name: CheckJobComplete
-        inputMappings:
-          - target: status
-            source: $local.status
-        choices:
-          - condition: $.status == "success"
-            goto: JobSucceeded
-          - condition: $.status == "running"
-            goto: Wait5s
+  # Check whether file restore success, if not, retry check
+  - type: choice
+    name: CheckJobComplete
+    inputMappings:
+      - target: status
+        source: $local.status
+    choices:
+      - condition: $.status == "success"
+        goto: JobSucceeded
+      - condition: $.status == "running"
+        goto: Wait
 
-      - type: succeed
-        name: JobSucceeded
+  - type: succeed
+    name: JobSucceeded

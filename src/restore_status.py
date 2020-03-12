@@ -17,22 +17,25 @@ def handler(event, context):
     data = json.loads(event)
     endpoint = data['endpoint']
     bucket_name = data['bucketName']
-    file_name = data['fileName']
+    files = data['files']
 
     creds = context.credentials
     auth = oss2.StsAuth(creds.access_key_id, creds.access_key_secret, creds.security_token)
     bucket = oss2.Bucket(auth, endpoint, bucket_name)
 
     # Check file restore completed
-    resp = bucket.head_object(file_name)
-    logger.info('Head object response headers: {}'.format(resp.headers))
-    restore_header = 'x-oss-restore'
-    if restore_header not in resp.headers:
-        # restore request not submit or out of expire date
-        status = 'success'
-    elif resp.headers[restore_header].find('ongoing-request="false"') != -1:
-        status = 'success'
-    else:
-        status = 'running'
+    status = 'success'
+    for file_name in files:
+        resp = bucket.head_object(file_name)
+        logger.info('Head object response headers: {}'.format(resp.headers))
+        restore_header = 'x-oss-restore'
+        if restore_header not in resp.headers:
+            # restore request not submit or out of expire date
+            status = 'success'
+        elif resp.headers[restore_header].find('ongoing-request="false"') != -1:
+            status = 'success'
+        else:
+            status = 'running'
+            break
 
     return '{"status": "%s"}' % status
