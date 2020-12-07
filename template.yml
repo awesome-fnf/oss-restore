@@ -86,28 +86,39 @@ Resources:
                     target: pollInterval
                   - source: ''
                     target: marker
+                  - source: $input.destBucketName
+                    target: destBucketName
 
               # List archive files from marker
               - type: task
                 name: listArchiveFiles
                 resourceArn: acs:fc:::services/<serviceName>/functions/listArchiveFiles
                 outputMappings:
-                  - source: $local.bucketName
-                    target: bucketName
-                  - source: $local.files
-                    target: files
+                  - source: $local.empty
+                    target: empty
                   - source: $local.marker
                     target: marker
+                  - source: $local.markerList
+                    target: markerList
                   - source: $local.end
                     target: end
 
-              # Invoke subflow restore to restore listed files
-              - type: task
-                name: invokeRestoreFlow
-                resourceArn: acs:fnf:::flow/<restoreFlow>
-                pattern: sync
-                serviceParams:
-                  Input: $
+              # Check whether file restore success, if not, retry check
+              - type: choice
+                name: checkEmpty
+                choices:
+                  # If list archive files not empty
+                  - condition: $.empty == "false"
+                    steps:
+                      # Invoke subflow restore to restore listed files
+                      - type: task
+                        name: invokeRestoreFlow
+                        resourceArn: acs:fnf:::flow/<restoreFlow>
+                        pattern: sync
+                        serviceParams:
+                          Input: $
+                default:
+                  goto: success
 
               # Check list files ended
               - type: choice

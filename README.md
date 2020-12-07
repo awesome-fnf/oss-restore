@@ -7,10 +7,27 @@ Use Serverless Workflow concurrent and batch restore OSS files.
 Parameters：
 - endpoint: OSS endpoint
 - bucketName: OSS bucket name
+- destBucketName: OSS bucket name, restore files will be put in this bucket
 - prefix: (optional) OSS bucket prefix
-- maxKeys: (optional) OSS ListObjects maxKeys (Don't exceed Workflow foreach number limit，default 100)
+- marker: (optional) OSS file marker to be started
 - pollInterval: (optional) Poll OSS restore status interval in seconds
+- maxKeys: (optional) OSS ListObjects maxKeys (the file number per function dealt with)
+- batches: (optional) Max batches dealt per round, do not over 100(batches is the number of the subflow foreach fc tasks) 
+
+In one round, batches * maxKeys files will be restore.
    
+eg:
+{
+  "endpoint": "oss-cn-beijing.aliyuncs.com",
+  "bucketName": "oss-restore",
+  "destBucketName": "oss-restore-dest",
+  "prefix":"",
+  "pollInterval": 10,
+  "marker": "",
+  "maxKeys": 3,
+  "batches": 5
+}
+ 
 ## Framework
 1. `mainRestoreFlow` invoke function `listArchiveFiles`, get OSS archive files start with `marker`.
 2. `mainRestoreFlow` invoke subflow `restoreFlow` to restore all files.

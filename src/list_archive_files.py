@@ -20,6 +20,7 @@ def handler(event, context):
     marker = data.get('marker', '')
     prefix = data.get('prefix', '')
     max_keys = data.get('maxKeys', 100)
+    batches = data.get('batches', 100)
 
     # Sts
     creds = context.credentials
@@ -28,17 +29,29 @@ def handler(event, context):
 
     # list achieve files
     achieve_list = []
-    resp = bucket.list_objects(prefix=prefix, marker=marker, max_keys=max_keys)
-    for obj in resp.object_list:
-        if obj.storage_class == oss2.BUCKET_STORAGE_CLASS_ARCHIVE:
-            achieve_list.append(obj.key)
+    markers_list = []
+    is_truncated = True
+    while (len(markers_list) < batches) and is_truncated:
+        resp = bucket.list_objects(prefix=prefix, marker=marker, max_keys=max_keys)
+        is_truncated = resp.is_truncated
+        tuples = (marker, resp.next_marker)
+        markers_list.append(tuples)
+        for obj in resp.object_list:
+            if obj.storage_class == oss2.BUCKET_STORAGE_CLASS_ARCHIVE:
+                achieve_list.append(obj.key)
+        marker = resp.next_marker
+    next_flow_begin_marker = marker
 
+    empty = False
+    if len(markers_list) == 0:
+        empty = True
     # Capsule all data into json and return
     res = {
         'bucketName': bucket_name,      # bucket name
-        'files': achieve_list,          # achieve file list
-        'marker': resp.next_marker,     # next maker for list object
-        'end': not resp.is_truncated,   # whether all objects been listed
+        'marker': next_flow_begin_marker,     # next maker for list object
+        'markerList': markers_list,  # next maker for list object
+        'empty': empty,
+        'end': not is_truncated,   # whether all objects been listed
     }
     return json.dumps(res)
 
